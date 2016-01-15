@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
+import util.TextFieldFilter;
 import listener.CusumActionListener;
 
 public class CusumCalculatorUI extends JFrame {
@@ -58,8 +61,15 @@ public class CusumCalculatorUI extends JFrame {
 	
 	private JButton btn_calcCusum;
 	private JButton btn_reset;
+	private JButton btn_viewGraph;
 	
+	private TextFieldFilter filter;
 	private CusumActionListener cusumActionListener = new CusumActionListener(this);
+	
+	private boolean isInputValuesEntered = false;
+	private boolean isRefMeanEntered = false;
+	private boolean isRefSDEntered = false;
+	private boolean isSigmaEntered = false;
 	
 	public CusumCalculatorUI() {
 		this.createAndShowGUI();
@@ -80,8 +90,75 @@ public class CusumCalculatorUI extends JFrame {
 	private void addListeners() {
 		this.btn_calcCusum.addActionListener(this.cusumActionListener);
 		this.btn_reset.addActionListener(this.cusumActionListener);
+		this.btn_viewGraph.addActionListener(this.cusumActionListener);
+		
+		this.txt_inputValues.addKeyListener(new KeyAdapter() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				if(txt_inputValues.getText().trim().length() == 0) {
+					isInputValuesEntered = false;
+					enableOrDisableCalcBtn();
+				} else {
+					isInputValuesEntered = true;
+					enableOrDisableCalcBtn();
+				}
+			}
+		});
+		
+		
+		this.txt_refMean.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				if(txt_refMean.getText().trim().length() == 0) {
+					isRefMeanEntered = false;
+					enableOrDisableCalcBtn();
+				} else {
+					isRefMeanEntered = true;
+					enableOrDisableCalcBtn();
+				}
+			}
+		});
+		
+		this.txt_refSD.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				if(txt_refSD.getText().trim().length() == 0) {
+					isRefSDEntered = false;
+					enableOrDisableCalcBtn();
+				} else {
+					isRefSDEntered = true;
+					enableOrDisableCalcBtn();
+				}
+			}
+		});
+		
+		this.txt_sigma.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				if(txt_sigma.getText().trim().length() == 0) {
+					isSigmaEntered = false;
+					enableOrDisableCalcBtn();
+				} else {
+					isSigmaEntered = true;
+					enableOrDisableCalcBtn();
+				}
+			}
+		});
 	}
 
+	private void enableOrDisableCalcBtn() {
+		if(isInputValuesEntered && isRefMeanEntered && isRefSDEntered && isSigmaEntered) {
+			this.btn_calcCusum.setEnabled(true);
+		} else {
+			this.btn_calcCusum.setEnabled(false);
+		}
+	}
+	
 	private void init() {
 		this.mainPanel = new JPanel();
 		
@@ -96,12 +173,23 @@ public class CusumCalculatorUI extends JFrame {
 		
 		this.lbl_refMean = new JLabel(this.str_refMean);
 		this.txt_refMean = new JTextField();
+		this.filter = new TextFieldFilter(TextFieldFilter.NUMERIC,4);
+		this.filter.setNegativeAccepted(false);
+		this.txt_refMean.setDocument(this.filter);
 		
 		this.lbl_refSD = new JLabel(this.str_refSD);
 		this.txt_refSD = new JTextField();
+		this.filter = new TextFieldFilter(TextFieldFilter.FLOAT);
+		this.filter.setNegativeAccepted(false);
+		this.filter.setPrecisionForFloat(2);
+		this.txt_refSD.setDocument(this.filter);
 		
 		this.lbl_sigma = new JLabel(this.str_sigma);
 		this.txt_sigma = new JTextField();
+		this.filter = new TextFieldFilter(TextFieldFilter.FLOAT);
+		this.filter.setNegativeAccepted(false);
+		this.filter.setPrecisionForFloat(2);
+		this.txt_sigma.setDocument(this.filter);
 		
 		this.lbl_ucl = new JLabel(this.str_ucl);
 		this.txt_ucl = new JTextField();
@@ -112,7 +200,9 @@ public class CusumCalculatorUI extends JFrame {
 		this.txt_lcl.setEditable(false);
 		
 		this.btn_calcCusum = new JButton("Calculate");
+		this.btn_calcCusum.setEnabled(false);
 		this.btn_reset = new JButton("Reset");
+		this.btn_viewGraph = new JButton("View Graph");
 	}
 
 	private JPanel createMainPanel() { 
@@ -280,6 +370,7 @@ public class CusumCalculatorUI extends JFrame {
 		
 		thisPanel.add(this.createBtnPanel(this.btn_calcCusum));
 		thisPanel.add(this.createBtnPanel(this.btn_reset));
+		thisPanel.add(this.createBtnPanel(this.btn_viewGraph));
 		
 		return thisPanel;
 	}
@@ -380,5 +471,13 @@ public class CusumCalculatorUI extends JFrame {
 
 	public void setTxt_lcl(JTextField txt_lcl) {
 		this.txt_lcl = txt_lcl;
+	}
+	
+	public JButton getBtn_viewGraph() {
+		return btn_viewGraph;
+	}
+
+	public void setBtn_viewGraph(JButton btn_viewGraph) {
+		this.btn_viewGraph = btn_viewGraph;
 	}
 }

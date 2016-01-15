@@ -5,7 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
+import org.jfree.ui.RefineryUtilities;
+
 import ui.CusumCalculatorUI;
+import ui.CusumGraph;
 
 public class CusumActionListener implements ActionListener{
 	
@@ -14,6 +17,7 @@ public class CusumActionListener implements ActionListener{
 	private float[] oEValues = new float[20]; // observed - expected values
 	private float[] cusumvalues = new float[20]; // cusum values
 	private float refMean; // expected values
+	private CusumGraph cusumGraph;
 	
 	private float refSD;
 	private float sigma;
@@ -26,7 +30,6 @@ public class CusumActionListener implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
 		if(e.getSource()==this.cusumCalculatorUI.getBtn_calcCusum()) {
 			
 			this.cusumCalculatorUI.getTxt_oEValues().setText("");
@@ -69,10 +72,19 @@ public class CusumActionListener implements ActionListener{
 	        this.cusum_sd = this.refSD*this.sigma;
 	        this.cusumCalculatorUI.getTxt_ucl().setText(String.valueOf(this.cusum_sd));
 	        this.cusumCalculatorUI.getTxt_lcl().setText(String.valueOf(-this.cusum_sd));
+	        this.cusumGraph = new CusumGraph(input_data, cusumvalues,this.cusum_sd,-this.cusum_sd);
 	        
 		} else if(e.getSource()==this.cusumCalculatorUI.getBtn_reset()){
+			
 			this.cusumCalculatorUI.resetTextFields();
+			this.cusumGraph = new CusumGraph();
+			
+		} else if(e.getSource()==this.cusumCalculatorUI.getBtn_viewGraph()){
+			
+			this.cusumGraph.pack();
+			RefineryUtilities.centerFrameOnScreen(this.cusumGraph);
+			this.cusumGraph.setVisible(true);
+			
 		}
 	}
-
 }
